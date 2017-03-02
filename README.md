@@ -2,6 +2,14 @@
 
 Thanks to it, you can now run scenarios in phantom with generators !
 
+### Methods
+```
+{"click" : "#id"}
+{"screenshot" : "screenshot_name"}
+{"waitFor" : {selector, parentFrame, untilVisible}}
+{"play" : "alert('this script will be played in your webpage');"}
+```
+
 ### Example
 ```
 const co     = require('co');
