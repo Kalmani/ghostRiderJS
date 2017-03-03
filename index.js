@@ -139,6 +139,11 @@ module.exports = class GhostRider {
     return Promise.resolve();
   }
 
+  * wait(time) {
+    yield sleep(time);
+    return Promise.resolve();
+  }
+
   * ride(scenario) {
 
     this.driver = scenario;
