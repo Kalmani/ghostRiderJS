@@ -31,7 +31,7 @@ module.exports = class GhostRider {
     this.screenshots_dir = '';
 
     this.available_actions = [
-      'click', 'screenshot', 'waitFor'
+      'click', 'screenshot', 'waitFor', 'wait', 'play'
     ];
 
     bind(this, this.available_actions);
