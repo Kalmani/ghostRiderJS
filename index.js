@@ -117,9 +117,9 @@ module.exports = class GhostRider {
     return Promise.resolve();
   }
 
-  * ride(scenario_path) {
+  * ride(scenario) {
 
-    this.driver = require(scenario_path);
+    this.driver = scenario;
     if (!this.driver)
       return Promise.reject();
 
