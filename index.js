@@ -1,17 +1,29 @@
 "use strict";
 
-const fs         = require('fs');
-const bind       = require('bindthem');
+const fs      = require('fs');
+const bind    = require('bindthem');
+const system  = require('system');
 
 const sleep      = require('nyks/function/sleep');
 const sprintf    = require('nyks/string/format');
+const startsWith = require('mout/string/startsWith');
+const ltrim      = require('mout/string/ltrim');
 const forOwn     = require('mout/object/forOwn');
 
+const DEFAULT_OPTIONS = {
+  coverage : false
+};
+
 module.exports = class GhostRider {
-  constructor(page, address) {
+  constructor(page, address, options) {
     this.address = address;
 
     this.driver = null;
+
+    this.is_main = (this.constructor === GhostRider.prototype.constructor);
+
+    this.options = DEFAULT_OPTIONS;
+    this.parse_args();
 
     this.screenshots_basedir   = './';
     this.screenshots_extension = '.jpg';
@@ -28,6 +40,16 @@ module.exports = class GhostRider {
     this.page.onConsoleMessage = function(msg, lineNum, sourceId) {
       console.log(msg);
     };
+
+  }
+
+  parse_args() {
+    system.args.forEach(arg => {
+      if (startsWith(arg, '-')) {
+        let option = ltrim(arg, '-').split('=');
+        this.options[option[0]] = option[1] || true;
+      }
+    });
   }
 
   get current_screenshots_dir() {
@@ -143,7 +165,30 @@ module.exports = class GhostRider {
 
     yield this.readScenario(this.driver.scenario.slice(0));
 
+    if (this.options.coverage)
+      this._write_coverage();
+
     return Promise.resolve();
+  }
+
+  _write_coverage() {
+    if (!this.is_main)
+      return; // Ghost rider has been extended, do not write coverage automatically
+
+    this.write_coverage();
+  }
+
+  write_coverage() {
+    var coverage = this.page.evaluate(function() {
+      return window.__coverage__;
+    });
+
+    if (coverage) {
+      console.log('Writing coverage to coverage/coverage.json');
+      fs.write('coverage/coverage.json', JSON.stringify(coverage), 'w');
+    } else {
+      console.log('No coverage data generated');
+    }
   }
 
   * readScenario(scenario) {
