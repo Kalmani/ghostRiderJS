@@ -5,6 +5,7 @@ const bind    = require('bindthem');
 const system  = require('system');
 
 const sleep      = require('nyks/function/sleep');
+const defer      = require('nyks/promise/defer');
 const sprintf    = require('nyks/string/format');
 const startsWith = require('mout/string/startsWith');
 const ltrim      = require('mout/string/ltrim');
