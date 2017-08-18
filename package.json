@@ -19,6 +19,7 @@
   "dependencies": {
     "bindthem": "^1.0.2",
     "mout": "^1.0.0",
-    "nyks": "^3.16.1"
+    "nyks": "^3.16.1",
+    "system": "^2.0.1"
   }
 }
