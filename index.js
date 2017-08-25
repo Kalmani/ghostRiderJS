@@ -67,7 +67,6 @@ module.exports = class GhostRider {
       fs.mkdirSync(screenshots_path);
 
     var browser = await this.page_open();
-
     await this.readScenario(this.driver.scenario.slice(0));
 
     if (this.options.coverage)
@@ -79,7 +78,6 @@ module.exports = class GhostRider {
   async page_open() {
     var browser = await puppeteer.launch();
     this.page   = await browser.newPage();
-
     this.page.setViewport({
       width  : this.options.width,
       height : this.options.height
@@ -151,7 +149,7 @@ module.exports = class GhostRider {
 
     if (coverage) {
       console.log('Writing coverage to coverage/coverage.json');
-      fs.write('coverage/coverage.json', JSON.stringify(coverage), 'w');
+      fs.writeFileSync('coverage/coverage.json', JSON.stringify(coverage, null, 2));
     } else {
       console.log('No coverage data generated');
     }
