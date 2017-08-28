@@ -1,6 +1,6 @@
 {
   "name": "ghost-rider",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Scenario runner for phantom Js (at least 2.5 !)",
   "main": "index.js",
   "scripts": {
