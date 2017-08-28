@@ -149,6 +149,8 @@ module.exports = class GhostRider {
 
     if (coverage) {
       console.log('Writing coverage to coverage/coverage.json');
+      if (!fs.existsSync('coverage/'))
+        fs.mkdirSync('coverage');
       fs.writeFileSync('coverage/coverage.json', JSON.stringify(coverage, null, 2));
     } else {
       console.log('No coverage data generated');
