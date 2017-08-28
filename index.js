@@ -76,7 +76,7 @@ module.exports = class GhostRider {
   }
 
   async page_open() {
-    var browser = await puppeteer.launch();
+    var browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
     this.page   = await browser.newPage();
     this.page.setViewport({
       width  : this.options.width,
