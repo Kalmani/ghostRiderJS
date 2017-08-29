@@ -127,7 +127,7 @@ module.exports = class GhostRider {
   }
 
   async screenshot(screenshot_name) {
-    if (this.ignore_screenshots)
+    if (this.option.ignore_screenshots)
       return console.log('Ignore screenshot step');
 
     let screenshot_file = sprintf('%s_%s%s', ('0' + this.screenshots_increment).substr(-2), screenshot_name, this.options.screenshots_ext);
