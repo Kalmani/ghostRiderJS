@@ -42,6 +42,8 @@ module.exports = class GhostRider {
     ];
 
     bind(this, this.available_actions);
+
+    this.screenshots_increment = 0;
   }
 
   async ride(scenario) {
@@ -125,10 +127,11 @@ module.exports = class GhostRider {
   }
 
   async screenshot(screenshot_name) {
-    let screenshot_file = sprintf('%s%s', screenshot_name, this.options.screenshots_ext);
+    let screenshot_file = sprintf('%s_%s%s', ('0' + this.screenshots_increment).substr(-2), screenshot_name, this.options.screenshots_ext);
     let screenshot_path = path.resolve(this.current_screenshots_dir, screenshot_file);
     console.log(sprintf("Take a screenshot in %s", screenshot_path));
     await this.page.screenshot({path: screenshot_path});
+    this.screenshots_increment++;
   }
 
   async play(script) {
