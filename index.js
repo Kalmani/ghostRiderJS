@@ -13,12 +13,13 @@ const forOwn     = require('mout/object/forOwn');
 const merge      = require('mout/object/merge');
 
 const DEFAULT_OPTIONS = {
-  coverage        : false,
-  width           : 1024,
-  height          : 768,
-  screenshots_dir : './screenshots',
-  screenshots_ext : '.jpg',
-  address         : 'http://127.0.0.1:8000' // default express url
+  coverage           : false,
+  width              : 1024,
+  height             : 768,
+  screenshots_dir    : './screenshots',
+  screenshots_ext    : '.jpg',
+  address            : 'http://127.0.0.1:8000', // default express url
+  ignore_screenshots : false
 };
 
 module.exports = class GhostRider {
@@ -65,7 +66,7 @@ module.exports = class GhostRider {
 
     await rmrf(screenshots_path);
 
-    if (!fs.existsSync(screenshots_path))
+    if (!fs.existsSync(screenshots_path) && !this.options.ignore_screenshots)
       fs.mkdirSync(screenshots_path);
 
     var browser = await this.page_open();
@@ -89,7 +90,6 @@ module.exports = class GhostRider {
 
     return browser;
   }
-
 
   async readScenario(scenario) {
 
@@ -127,6 +127,9 @@ module.exports = class GhostRider {
   }
 
   async screenshot(screenshot_name) {
+    if (this.ignore_screenshots)
+      return console.log('Ignore screenshot step');
+
     let screenshot_file = sprintf('%s_%s%s', ('0' + this.screenshots_increment).substr(-2), screenshot_name, this.options.screenshots_ext);
     let screenshot_path = path.resolve(this.current_screenshots_dir, screenshot_file);
     console.log(sprintf("Take a screenshot in %s", screenshot_path));
