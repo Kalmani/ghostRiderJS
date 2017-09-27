@@ -5,6 +5,7 @@ const path      = require('path');
 const bind      = require('bindthem');
 const puppeteer = require('puppeteer');
 
+const sleep      = require('nyks/async/sleep');
 const rmrf       = require('nyks/fs/rmrf');
 const sprintf    = require('nyks/string/format');
 const startsWith = require('mout/string/startsWith');
@@ -79,7 +80,7 @@ module.exports = class GhostRider {
   }
 
   async page_open() {
-    var browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
+    var browser = await puppeteer.launch({/*headless: false, */args: ['--no-sandbox', '--disable-setuid-sandbox']});
     this.page   = await browser.newPage();
     this.page.setViewport({
       width  : this.options.width,
@@ -110,42 +111,6 @@ module.exports = class GhostRider {
     await this.readScenario(scenario);
   }
 
-  async waitFor(args) {
-    var selector  = args.selector       || 'body';
-    var visible   = args.untilVisible   || false;
-    var invisible = args.untilInvisible || false;
-
-    console.log('waitfor', {selector, visible, invisible});
-
-    if (invisible) {
-      let frame = this.page.mainFrame();
-      await frame.waitForFunction("$('" + selector + "').length == 0");
-      return;
-    }
-
-    await this.page.waitForSelector(selector, {visible});
-  }
-
-  async screenshot(screenshot_name) {
-    if (this.options.ignore_screenshots)
-      return console.log('Ignore screenshot step');
-
-    let screenshot_file = sprintf('%s_%s%s', ('0' + this.screenshots_increment).substr(-2), screenshot_name, this.options.screenshots_ext);
-    let screenshot_path = path.resolve(this.current_screenshots_dir, screenshot_file);
-    console.log(sprintf("Take a screenshot in %s", screenshot_path));
-    await this.page.screenshot({path: screenshot_path});
-    this.screenshots_increment++;
-  }
-
-  async play(script) {
-    await this.page.evaluate(eval("(function() { " + script + " })"));
-  }
-
-  async click(selector) {
-    await this.page.click(selector);
-    console.log('clicked on ' + selector);
-  }
-
   get current_screenshots_dir() {
     return path.resolve(process.cwd(), this.options.screenshots_dir);
   }
@@ -163,15 +128,46 @@ module.exports = class GhostRider {
     }
   }
 
-  /*
-  parse_args() {
-    process.argv.forEach(arg => {
-      if (startsWith(arg, '-')) {
-        let option = ltrim(arg, '-').split('=');
-        this.options[option[0]] = option[1] || true;
-      }
-    });
+  async click(selector) {
+    await this.page.click(selector);
+    console.log('clicked on ' + selector);
   }
-  */
+
+  async screenshot(screenshot_name) {
+    if (this.options.ignore_screenshots)
+      return console.log('Ignore screenshot step');
+
+    await this.wait(this.options.screenshot_delay || 100);
+
+    let screenshot_file = sprintf('%s_%s%s', ('0' + this.screenshots_increment).substr(-2), screenshot_name, this.options.screenshots_ext);
+    let screenshot_path = path.resolve(this.current_screenshots_dir, screenshot_file);
+    console.log(sprintf("Take a screenshot in %s", screenshot_path));
+    await this.page.screenshot({path: screenshot_path});
+    this.screenshots_increment++;
+  }
+
+  async waitFor(args) {
+    var selector  = args.selector       || 'body';
+    var visible   = args.untilVisible   || false;
+    var invisible = args.untilInvisible || false;
+
+    console.log('waitfor', {selector, visible, invisible});
+
+    if (invisible) {
+      let frame = this.page.mainFrame();
+      await frame.waitForFunction("$('" + selector + "').length == 0");
+      return;
+    }
+
+    await this.page.waitForSelector(selector, {visible});
+  }
+
+  async wait(time) {
+    await sleep(time || 0);
+  }
+
+  async play(script) {
+    await this.page.evaluate(eval("(function() { " + script + " })"));
+  }
 
 }
