@@ -86,7 +86,7 @@ module.exports = class GhostRider {
     };
 
     if (this.options.debug) {
-      options.slowMo: 250;
+      options.slowMo   = 250;
       options.headless = false;
     }
 
