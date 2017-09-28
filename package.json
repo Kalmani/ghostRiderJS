@@ -1,6 +1,6 @@
 {
   "name": "ghost-rider",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "Scenario runner for Puppeteer (async/await model)",
   "main": "index.js",
   "scripts": {
