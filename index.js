@@ -85,10 +85,10 @@ module.exports = class GhostRider {
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     };
 
-    if (this.options.debug) {
-      options.slowMo   = 250;
+    if (this.options.slowMo)
+      options.slowMo   = this.options.slowMo;
+    if (this.options.visible)
       options.headless = false;
-    }
 
     var browser = await puppeteer.launch(options);
     this.page   = await browser.newPage();

@@ -26,7 +26,10 @@ const nicolas = new GhostRider({
   coverage : report,
   screenshots_dir : screenshots_dir,
   screenshots_ext : '.png',
-  screenshot_delay : 250
+  screenshot_delay : 250,
+
+  slowMo  : 250,
+  visible : true // only on windows!
 });
 await nicolas.ride("./scenario.json");
 ```
