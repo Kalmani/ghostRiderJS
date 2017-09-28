@@ -1,7 +1,7 @@
 {
   "name": "ghost-rider",
   "version": "1.0.13",
-  "description": "Scenario runner for phantom Js (at least 2.5 !)",
+  "description": "Scenario runner for Puppeteer (async/await model)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

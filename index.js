@@ -80,7 +80,17 @@ module.exports = class GhostRider {
   }
 
   async page_open() {
-    var browser = await puppeteer.launch({/*headless: false, */args: ['--no-sandbox', '--disable-setuid-sandbox']});
+
+    var options = {
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    };
+
+    if (this.options.debug) {
+      options.slowMo: 250;
+      options.headless = false;
+    }
+
+    var browser = await puppeteer.launch(options);
     this.page   = await browser.newPage();
     this.page.on('error', function(err) {
       console.log('an error occured, the page might have crashed !', err);
