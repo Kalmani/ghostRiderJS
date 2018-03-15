@@ -8,8 +8,6 @@ const puppeteer = require('puppeteer');
 const sleep      = require('nyks/async/sleep');
 const rmrf       = require('nyks/fs/rmrf');
 const sprintf    = require('nyks/string/format');
-const startsWith = require('mout/string/startsWith');
-const ltrim      = require('mout/string/ltrim');
 const forOwn     = require('mout/object/forOwn');
 const merge      = require('mout/object/merge');
 
@@ -29,7 +27,7 @@ module.exports = class GhostRider {
 
     var current_node_version = Number(process.version.match(/^v(\d+\.\d+)/)[1]);
 
-    if (current_node_version < 7)
+    if(current_node_version < 7)
       throw "Your node version must be at least 7 !";
 
     this.options = merge(DEFAULT_OPTIONS, options);
@@ -51,12 +49,12 @@ module.exports = class GhostRider {
   async ride(scenario) {
 
     this.driver = scenario;
-    if (!this.driver)
+    if(!this.driver)
       throw "No scenario sended";
 
-    if (this.driver.alias) {
+    if(this.driver.alias) {
       forOwn(this.driver.alias, (alias, name) => {
-        if (this.available_actions.indexOf(name) > -1)
+        if(this.available_actions.indexOf(name) > -1)
           return console.log(name + " can't be added, this function already exists");
         this.available_actions.push(name);
         this[name] = alias;
@@ -67,13 +65,13 @@ module.exports = class GhostRider {
 
     await rmrf(screenshots_path);
 
-    if (!fs.existsSync(screenshots_path) && !this.options.ignore_screenshots)
+    if(!fs.existsSync(screenshots_path) && !this.options.ignore_screenshots)
       fs.mkdirSync(screenshots_path);
 
     var browser = await this.page_open();
     await this.readScenario(this.driver.scenario.slice(0));
 
-    if (this.options.coverage)
+    if(this.options.coverage)
       await this.write_coverage();
 
     browser.close();
@@ -82,12 +80,12 @@ module.exports = class GhostRider {
   async page_open() {
 
     var options = {
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args : ['--no-sandbox', '--disable-setuid-sandbox']
     };
 
-    if (this.options.slowMo)
+    if(this.options.slowMo)
       options.slowMo   = this.options.slowMo;
-    if (this.options.visible)
+    if(this.options.visible)
       options.headless = false;
 
     var browser = await puppeteer.launch(options);
@@ -107,7 +105,7 @@ module.exports = class GhostRider {
 
   async readScenario(scenario) {
 
-    if (!scenario.length)
+    if(!scenario.length)
       return;
 
     var currentTask = scenario[0];
@@ -115,10 +113,10 @@ module.exports = class GhostRider {
 
     var method = (typeof currentTask == "string") ? currentTask : Object.keys(currentTask)[0];
 
-    if (typeof this[method] == 'function')
+    if(typeof this[method] == 'function')
       await this[method](currentTask[method]);
 
-    if (typeof this[method] == 'object')
+    if(typeof this[method] == 'object')
       await this.readScenario(this[method].slice(0));
 
     await this.readScenario(scenario);
@@ -131,9 +129,9 @@ module.exports = class GhostRider {
   async write_coverage() {
     var coverage = await this.page.evaluate("window.__coverage__");
 
-    if (coverage) {
+    if(coverage) {
       console.log('Writing coverage to coverage/coverage.json');
-      if (!fs.existsSync('coverage/'))
+      if(!fs.existsSync('coverage/'))
         fs.mkdirSync('coverage');
       fs.writeFileSync('coverage/coverage.json', JSON.stringify(coverage, null, 2));
     } else {
@@ -147,7 +145,7 @@ module.exports = class GhostRider {
   }
 
   async screenshot(screenshot_name) {
-    if (this.options.ignore_screenshots)
+    if(this.options.ignore_screenshots)
       return console.log('Ignore screenshot step');
 
     await this.wait(this.options.screenshot_delay || 100);
@@ -155,7 +153,7 @@ module.exports = class GhostRider {
     let screenshot_file = sprintf('%s_%s%s', ('0' + this.screenshots_increment).substr(-2), screenshot_name, this.options.screenshots_ext);
     let screenshot_path = path.resolve(this.current_screenshots_dir, screenshot_file);
     console.log(sprintf("Take a screenshot in %s", screenshot_path));
-    await this.page.screenshot({path: screenshot_path});
+    await this.page.screenshot({path : screenshot_path});
     this.screenshots_increment++;
   }
 
@@ -166,7 +164,7 @@ module.exports = class GhostRider {
 
     console.log('waitfor', {selector, visible, invisible});
 
-    if (invisible) {
+    if(invisible) {
       let frame = this.page.mainFrame();
       await frame.waitForFunction("$('" + selector + "').length == 0");
       return;
@@ -183,4 +181,4 @@ module.exports = class GhostRider {
     await this.page.evaluate(eval("(function() { " + script + " })"));
   }
 
-}
+};

@@ -4,7 +4,7 @@
   "description": "Scenario runner for Puppeteer (async/await model)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "eslint": "eslint index.js"
   },
   "repository": {
     "type": "git",
