@@ -78,8 +78,7 @@ module.exports = class GhostRider {
   }
 
   async page_open() {
-
-    var options = {
+    var options = this.options.sandbox ? {} : {
       args : ['--no-sandbox', '--disable-setuid-sandbox']
     };
 
