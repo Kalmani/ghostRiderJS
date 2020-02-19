@@ -166,13 +166,13 @@ module.exports = class GhostRider {
 
   waitFor(args) {
     let selector  = args.selector || 'body';
-    let visible   = args.untilVisible || false;
-    let invisible = args.untilInvisible || false;
+    let visible   = null;
 
-    console.log('waitfor', {selector, visible, invisible});
+    if(args.untilVisible)
+      visible = 'visible';
 
-    if(invisible)
-      return this.page.mainFrame().waitForFunction(`document.querySelector('${selector}') == null`);
+    if(args.untilInvisible)
+      visible = 'hidden';
 
     return this.page.waitForSelector(selector, {visible});
   }
