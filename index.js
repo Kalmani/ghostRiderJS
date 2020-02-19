@@ -172,7 +172,7 @@ module.exports = class GhostRider {
     console.log('waitfor', {selector, visible, invisible});
 
     if(invisible)
-      return this.page.mainFrame().waitForFunction(`$('${selector}').length == 0`);
+      return this.page.mainFrame().waitForFunction(`document.querySelector('${selector}') == null`);
 
     return this.page.waitForSelector(selector, {visible});
   }
