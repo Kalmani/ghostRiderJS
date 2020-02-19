@@ -1,15 +1,14 @@
-"use strict";
+'use strict';
 
-const fs        = require('fs');
-const path      = require('path');
-const bind      = require('bindthem');
-const puppeteer = require('puppeteer');
+const fs         = require('fs');
+const path       = require('path');
 
+const bind       = require('bindthem');
+const puppeteer  = require('puppeteer');
+
+const forOwn     = require('mout/object/forOwn');
 const sleep      = require('nyks/async/sleep');
 const rmrf       = require('nyks/fs/rmrf');
-const sprintf    = require('nyks/string/format');
-const forOwn     = require('mout/object/forOwn');
-const merge      = require('mout/object/merge');
 
 const DEFAULT_OPTIONS = {
   coverage           : false,
@@ -24,39 +23,36 @@ const DEFAULT_OPTIONS = {
 module.exports = class GhostRider {
 
   constructor(options) {
-
-    var current_node_version = Number(process.version.match(/^v(\d+\.\d+)/)[1]);
+    let current_node_version = Number(process.version.match(/^v(\d+\.\d+)/)[1]);
 
     if(current_node_version < 7)
-      throw "Your node version must be at least 7 !";
+      throw 'Your node version must be at least 7 !';
 
-    this.options = merge(DEFAULT_OPTIONS, options);
-
-    this.driver = null;
-    this.page   = null;
-
+    this.options = {...DEFAULT_OPTIONS, ...(options || {})};
+    this.driver  = null;
+    this.page    = null;
     this.is_main = (this.constructor === GhostRider.prototype.constructor);
 
-    this.available_actions = [
-      'click', 'screenshot', 'waitFor', 'wait', 'play'
+    this.actions = [
+      'click', 'type', 'screenshot', 'waitFor', 'wait', 'play'
     ];
 
-    bind(this, this.available_actions);
+    bind(this, this.actions);
 
     this.screenshots_increment = 0;
   }
 
   async ride(scenario) {
-
     this.driver = scenario;
+
     if(!this.driver)
-      throw "No scenario sended";
+      throw 'No scenario sended';
 
     if(this.driver.alias) {
       forOwn(this.driver.alias, (alias, name) => {
-        if(this.available_actions.indexOf(name) > -1)
-          return console.log(name + " can't be added, this function already exists");
-        this.available_actions.push(name);
+        if(this.actions.indexOf(name) > -1)
+          return console.log(`${name} can't be added, this function already exists`);
+        this.actions.push(name);
         this[name] = alias;
       });
     }
@@ -68,7 +64,8 @@ module.exports = class GhostRider {
     if(!fs.existsSync(screenshots_path) && !this.options.ignore_screenshots)
       fs.mkdirSync(screenshots_path);
 
-    var browser = await this.page_open();
+    let browser = await this.page_open();
+
     await this.readScenario(this.driver.scenario.slice(0));
 
     if(this.options.coverage)
@@ -78,20 +75,22 @@ module.exports = class GhostRider {
   }
 
   async page_open() {
-    var options = this.options.sandbox ? {} : {
+    let options = this.options.sandbox ? {} : {
       args : ['--no-sandbox', '--disable-setuid-sandbox']
     };
 
     if(this.options.slowMo)
       options.slowMo   = this.options.slowMo;
+
     if(this.options.visible)
       options.headless = false;
 
-    var browser = await puppeteer.launch(options);
+    let browser = await puppeteer.launch(options);
+
     this.page   = await browser.newPage();
-    this.page.on('error', function(err) {
-      console.log('an error occured, the page might have crashed !', err);
-    });
+
+    this.page.on('error', (err) => console.log('an error occured, the page might have crashed !', err));
+
     this.page.setViewport({
       width  : this.options.width,
       height : this.options.height
@@ -103,14 +102,14 @@ module.exports = class GhostRider {
   }
 
   async readScenario(scenario) {
-
     if(!scenario.length)
       return;
 
-    var currentTask = scenario[0];
+    let currentTask = scenario[0];
+
     scenario.shift();
 
-    var method = (typeof currentTask == "string") ? currentTask : Object.keys(currentTask)[0];
+    let method = (typeof currentTask == 'string') ? currentTask : Object.keys(currentTask)[0];
 
     if(typeof this[method] == 'function')
       await this[method](currentTask[method]);
@@ -126,7 +125,7 @@ module.exports = class GhostRider {
   }
 
   async write_coverage() {
-    var coverage = await this.page.evaluate("window.__coverage__");
+    let coverage = await this.page.evaluate('window.__coverage__');
 
     if(coverage) {
       console.log('Writing coverage to coverage/coverage.json');
@@ -138,9 +137,16 @@ module.exports = class GhostRider {
     }
   }
 
-  async click(selector) {
-    await this.page.click(selector);
-    console.log('clicked on ' + selector);
+  type([selector, value]) {
+    console.log(`set ${value} for selector ${selector}`);
+
+    return this.page.type(selector, value);
+  }
+
+  click(selector) {
+    console.log(`clicked on ${selector}`);
+
+    return this.page.click(selector);
   }
 
   async screenshot(screenshot_name) {
@@ -149,35 +155,34 @@ module.exports = class GhostRider {
 
     await this.wait(this.options.screenshot_delay || 100);
 
-    let screenshot_file = sprintf('%s_%s%s', ('0' + this.screenshots_increment).substr(-2), screenshot_name, this.options.screenshots_ext);
+    let screenshot_file = `0${this.screenshots_increment.substr(-2)}_${screenshot_name}${this.options.screenshots_ext}`;
     let screenshot_path = path.resolve(this.current_screenshots_dir, screenshot_file);
-    console.log(sprintf("Take a screenshot in %s", screenshot_path));
+
+    console.log(`Take a screenshot in ${screenshot_path}`);
+
     await this.page.screenshot({path : screenshot_path});
     this.screenshots_increment++;
   }
 
-  async waitFor(args) {
-    var selector  = args.selector       || 'body';
-    var visible   = args.untilVisible   || false;
-    var invisible = args.untilInvisible || false;
+  waitFor(args) {
+    let selector  = args.selector || 'body';
+    let visible   = args.untilVisible || false;
+    let invisible = args.untilInvisible || false;
 
     console.log('waitfor', {selector, visible, invisible});
 
-    if(invisible) {
-      let frame = this.page.mainFrame();
-      await frame.waitForFunction("$('" + selector + "').length == 0");
-      return;
-    }
+    if(invisible)
+      return this.page.mainFrame().waitForFunction(`$('${selector}').length == 0`);
 
-    await this.page.waitForSelector(selector, {visible});
+    return this.page.waitForSelector(selector, {visible});
   }
 
-  async wait(time) {
-    await sleep(time || 0);
+  wait(time) {
+    return sleep(time || 0);
   }
 
-  async play(script) {
-    await this.page.evaluate(eval("(function() { " + script + " })"));
+  play(script) {
+    return this.page.evaluate(eval(`(function() { ${script} })`));
   }
 
 };

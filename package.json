@@ -19,10 +19,12 @@
   "dependencies": {
     "bindthem": "^1.0.2",
     "mout": "^1.0.0",
-    "nyks": "^4.0.3",
-    "system": "^2.0.1"
+    "nyks": "^4.0.3"
   },
   "peerDependencies": {
     "puppeteer": "^1.1.1"
+  },
+  "devDependencies": {
+    "eslint-plugin-ivs": "^2.1.2"
   }
 }
