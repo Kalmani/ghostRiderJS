@@ -155,7 +155,7 @@ module.exports = class GhostRider {
 
     await this.wait(this.options.screenshot_delay || 100);
 
-    let screenshot_file = `0${this.screenshots_increment.substr(-2)}_${screenshot_name}${this.options.screenshots_ext}`;
+    let screenshot_file = `${`0${this.screenshots_increment}`.substr(-2)}_${screenshot_name}${this.options.screenshots_ext}`;
     let screenshot_path = path.resolve(this.current_screenshots_dir, screenshot_file);
 
     console.log(`Take a screenshot in ${screenshot_path}`);
