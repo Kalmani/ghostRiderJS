@@ -181,11 +181,12 @@ module.exports = class GhostRider {
     let selector  = args.selector || 'body';
     let visible   = null;
 
-    if(args.untilVisible)
-      visible = 'visible';
-
     if(args.untilInvisible)
       visible = 'hidden';
+
+    if(!visible || args.untilVisible)
+      visible = 'visible';
+
 
     console.log(`waiting for ${selector} to be ${visible}`);
 
