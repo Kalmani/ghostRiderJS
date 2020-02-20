@@ -34,7 +34,7 @@ module.exports = class GhostRider {
     this.is_main = (this.constructor === GhostRider.prototype.constructor);
 
     this.actions = [
-      'click', 'type', 'screenshot', 'waitFor', 'wait', 'play'
+      'click', 'type', 'select', 'screenshot', 'waitFor', 'wait', 'play'
     ];
 
     bind(this, this.actions);
@@ -142,6 +142,12 @@ module.exports = class GhostRider {
 
     return this.page.type(selector, value);
   }*/
+
+  select([selector, value]) {
+    console.log(`selecting value ${value} on select ${selector}`);
+
+    return this.page.select(selector, value);
+  }
 
   type([selector, value]) {
     console.log(`set ${value} for selector ${selector}`);
