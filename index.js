@@ -137,16 +137,16 @@ module.exports = class GhostRider {
     }
   }
 
-  /*type([selector, value]) {
-    console.log(`set ${value} for selector ${selector}`);
-
-    return this.page.type(selector, value);
-  }*/
-
   select([selector, value]) {
     console.log(`selecting value ${value} on select ${selector}`);
 
-    return this.page.select(selector, value);
+    return this.page.evaluate((selector, value) => {
+      var input = document.querySelector(selector);
+      var event = new Event('change', {bubbles: true});
+
+      input.value = value;
+      input.dispatchEvent(event);
+    }, selector, value);
   }
 
   type([selector, value]) {
