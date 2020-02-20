@@ -187,14 +187,18 @@ module.exports = class GhostRider {
     if(args.untilInvisible)
       visible = 'hidden';
 
+    console.log(`waiting for ${selector} to be ${visible}`);
+
     return this.page.waitForSelector(selector, {visible});
   }
 
   wait(time) {
+    console.log(`waiting ${time / 1000}s.`);
     return sleep(time || 0);
   }
 
   play(script) {
+    console.log(`evaluate script "${script}"`);
     return this.page.evaluate(eval(`(function() { ${script} })`));
   }
 
